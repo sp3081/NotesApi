@@ -1,0 +1,73 @@
+@host = https://localhost:7001
+
+### 1. Register (no token needed)
+POST {{host}}/api/users
+Content-Type: application/json
+
+{ "userName": "jdoe", "nickname": "Johnny", "password": "P@ssw0rd123" }
+
+### 2. Log in and get a token
+# @name login
+POST {{host}}/api/token
+Content-Type: application/json
+
+{ "userName": "jdoe", "password": "P@ssw0rd123" }
+
+### Everything below sends the token from the login request above
+@token = {{login.response.body.$.accessToken}}
+
+### Who am I
+GET {{host}}/api/users/me
+Authorization: Bearer {{token}}
+
+### List users
+GET {{host}}/api/users
+Authorization: Bearer {{token}}
+
+### Get one user
+GET {{host}}/api/users/1
+Authorization: Bearer {{token}}
+
+### Update yourself (password optional)
+PUT {{host}}/api/users/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "userName": "jdoe", "nickname": "JD" }
+
+### Create a note (owner comes from the token)
+POST {{host}}/api/notes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "note": "Buy milk" }
+
+### List your notes
+GET {{host}}/api/notes
+Authorization: Bearer {{token}}
+
+### Same, via the user route
+GET {{host}}/api/users/1/notes
+Authorization: Bearer {{token}}
+
+### Get one note
+GET {{host}}/api/notes/1
+Authorization: Bearer {{token}}
+
+### Update a note
+PUT {{host}}/api/notes/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "note": "Buy oat milk" }
+
+### Delete a note
+DELETE {{host}}/api/notes/1
+Authorization: Bearer {{token}}
+
+### No token -> 401
+GET {{host}}/api/notes
+
+### Delete yourself (and your notes)
+DELETE {{host}}/api/users/1
+Authorization: Bearer {{token}}
